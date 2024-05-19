@@ -47,6 +47,31 @@
             </tr>
           <% end %>
         </table>
+
+          <% if @query.type == 'TimeEntryQuery' %>
+          <table id="report-definition" class="<%= 'hidden' if (@query.display_type != 'report') %>">
+            <tr>
+              <td><label for='columns'><%= l(:label_details) %></label>: </td>
+              <td><%= select_tag 'columns', options_for_select([[l(:label_year), 'year'],
+                                                                                                                      [l(:label_month), 'month'],
+                                                                                                                      [l(:label_week), 'week'],
+                                                                                                                      [l(:label_day_plural).titleize, 'day']], @query.report_columns),
+                                                                                       :onchange => "this.form.submit();" %>
+              </td>
+            </tr>
+            <% if @query.available_columns.any? %>
+              <tr>
+                <td class="field"><%= l(:field_column_names) %></td>
+                <td><%= render_query_report_criteria_selection(@query, {:name => 'criteria'}) %></td>
+              </tr>
+            <% end %>
+
+
+
+
+          </table>
+          <% end %>
+
       </div>
     </fieldset>
   <% end %>
@@ -63,9 +88,8 @@
     <% end %>
   <% else %>
     <% if @query.editable_by?(User.current) %>
-      <% redirect_params = (controller_name == 'admin' && action_name == 'projects') ? {:admin_projects => 1} : {} %>
-      <%= link_to l(:button_edit_object, object_name: l(:label_query).downcase), edit_query_path(@query, redirect_params), :class => 'icon icon-edit' %>
-      <%= delete_link query_path(@query, redirect_params), {}, l(:button_delete_object, object_name: l(:label_query).downcase) %>
+      <%= link_to l(:button_edit_object, object_name: l(:label_query).downcase), edit_query_path(@query), :class => 'icon icon-edit' %>
+      <%= delete_link query_path(@query), {}, l(:button_delete_object, object_name: l(:label_query).downcase) %>
     <% end %>
   <% end %>
 </p>
@@ -78,8 +102,10 @@ $(function ($) {
   $('input[name=display_type]').change(function (e) {
     if ($("#display_type_list").is(':checked')) {
       $('table#list-definition').show();
+      $('table#report-definition').hide();
     } else {
       $('table#list-definition').hide();
+      $('table#report-definition').show();
     }
 
   })

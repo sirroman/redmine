@@ -91,6 +91,11 @@ module QueriesHelper
     select_tag('group_by', options_for_select(options, @query.group_by))
   end
 
+  def color_by_column_select_tag(query)
+    options = [[]] + query.groupable_columns.collect {|c| [c.caption, c.name.to_s]}
+    select_tag('color_by', options_for_select(options, @query.color_by))
+  end
+
   def available_block_columns_tags(query)
     tags = ''.html_safe
     query.available_block_columns.each do |column|
@@ -136,6 +141,11 @@ module QueriesHelper
   def render_query_columns_selection(query, options={})
     tag_name = (options[:name] || 'c') + '[]'
     render :partial => 'queries/columns', :locals => {:query => query, :tag_name => tag_name}
+  end
+
+  def render_query_report_criteria_selection(query, options={})
+    tag_name = (options[:name] || 'c') + '[]'
+    render :partial => 'timelog/criteria', :locals => {:query => query, :tag_name => tag_name}
   end
 
   def available_display_types_tags(query)

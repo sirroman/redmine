@@ -43,9 +43,17 @@ class TimelogController < ApplicationController
 
   def index
     retrieve_time_entry_query
-    scope = time_entry_scope.
-      preload(:issue => [:project, :tracker, :status, :assigned_to, :priority]).
-      preload(:project, :user)
+
+    if @query.display_type == 'list'
+      scope = time_entry_scope.
+        preload(:issue => [:project, :tracker, :status, :assigned_to, :priority]).
+        preload(:project, :user)
+    else
+      scope = time_entry_scope
+      @report = Redmine::Helpers::TimeReport.new(@project, params[:criteria], params[:columns], scope)
+    end
+
+
 
     respond_to do |format|
       format.html do

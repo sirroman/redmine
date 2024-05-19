@@ -150,6 +150,33 @@ class TimeEntryQuery < Query
       where(statement)
   end
 
+  def available_display_types
+    ['list', 'report']
+  end
+
+  def report
+    @report ||= Redmine::Helpers::TimeReport.new(@project, report_criteria, report_columns, results_scope)
+  end
+
+  def report_criteria
+    # (@report.available_criteria.keys - @report.criteria).collect{|k| [l_or_humanize(@report.available_criteria[k][:label]), k]}),
+    options[:report_criteria] ||= ['user']
+  end
+
+  def report_columns
+    options[:report_columns] ||= 'month'
+  end
+
+  def report_available_inline_columns_options(query)
+    (query.available_inline_columns - query.columns).
+      reject(&:frozen?).collect {|column| [column.caption, column.name]}
+  end
+
+  def query_selected_inline_columns_options(query)
+    (query.inline_columns & query.available_inline_columns).
+      reject(&:frozen?).collect {|column| [column.caption, column.name]}
+  end
+
   def results_scope(options={})
     order_option = [group_by_sort_order, (options[:order] || sort_clause)].flatten.reject(&:blank?)
 
